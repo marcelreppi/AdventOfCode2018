@@ -1,14 +1,7 @@
-
-const DoubleEndedQueue = require('./DEQ.js')
-
-const deque = new DoubleEndedQueue()
-
-require('./better.js')
-return
-
 const players = 439
-// const lastMarble = 71307
-const lastMarble = 7130700
+const lastMarble = 71307
+// const lastMarble = 
+// For part 2 use better.js
 
 // const players = 13
 // const lastMarble = 7999
