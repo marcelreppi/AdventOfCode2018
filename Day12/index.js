@@ -12,32 +12,99 @@ rules = rules.split('\r\n').map( r => {
   return rule
 })
 
-const DEQ = new DoubleEndedQueue(false)
-
-for (let i = 0; i < initialState.length; i++) {
-  const pot = initialState[i];
-  DEQ.push({
-    content: pot,
-    index: i
-  })
-}
+const t1 = Date.now()
 
 // Part 1
-// const sum = calculateSum(20)
-// console.log(sum)
+// const sum = calculateSumString(20)
 
 // Part 2
 // The sum repetitively increases by 23 after generation 162
 // Solution = sum + (50000000000 - 162) * 23
-const sum = calculateSum(162) + (50000000000 - 162) * 23
+const sum = calculateSumString(162) + (50000000000 - 162) * 23
+
+const r1 = Date.now()-t1
 console.log(sum)
+console.log('String runtime: ' + r1 + 'ms')
+
+function calculateSumString(generations) {
+  let previousSum = 0
+  const padding = 3
+  let currentState = initialState
+  for (let g = 0; g < generations; g++) {
+    currentState = '.'.repeat(padding) + currentState + '.'.repeat(padding)
+    const modifications = []
+    for (let r = 0; r < rules.length; r++) {
+      const rule = rules[r];
+  
+      let ri = currentState.indexOf(rule.predicate)
+      while (ri !== -1) {
+        // console.log(rule.predicate, ri+2, rule.result)
+        modifications.push({ index: ri + 2, mod: rule.result })
+        ri = currentState.indexOf(rule.predicate, ri + 1)
+      }
+    }
+  
+    modifications.forEach( m => {
+      currentState = currentState.substring(0, m.index) + m.mod + currentState.substring(m.index + 1)
+    })
+
+    // let sum = 0
+    // for (let i = 0; i < currentState.length; i++) {
+    //   if (currentState[i] === '#') {
+    //     sum += i - padding*g
+    //   }
+    // }
+
+    // console.log('Generation ' + g)
+    // console.log('Current sum ' + sum)
+    // console.log('Difference to previous sum ' + (sum - previousSum))
+
+    // previousSum = sum
+  }
+  
+  // console.log(currentState)
+  
+  let sum = 0
+  for (let i = 0; i < currentState.length; i++) {
+    if (currentState[i] === '#') {
+      sum += i - padding*generations
+    }
+  }
+  
+  return sum
+}
 
 
+////////////////////////////// DEQ approach ///////////////////////////////
 
-function calculateSum(generations) {
+
+const t2 = Date.now()
+
+// Part 1
+// const sumDEQ = calculateSumDEQ(2000)
+
+// Part 2
+// The sum repetitively increases by 23 after generation 162
+// Solution = sum + (50000000000 - 162) * 23
+const sumDEQ = calculateSumDEQ(162) + (50000000000 - 162) * 23
+
+const r2 = Date.now()-t2
+console.log(sumDEQ)
+console.log('DEQ runtime: ' + r2 + 'ms')
+
+function calculateSumDEQ(generations) {
+  const DEQ = new DoubleEndedQueue(false)
+
+  for (let i = 0; i < initialState.length; i++) {
+    const pot = initialState[i];
+    DEQ.push({
+      content: pot,
+      index: i
+    })
+  }
+
   const padding = 3
   let previousSum = 0
-
   for (let i = 0; i < generations; i++) {
     // add 5 empty pots to beginning of DEQ
     for (let i = 0; i < padding; i++) {
@@ -113,47 +180,3 @@ function calculateSum(generations) {
 
   return sum
 }
-
-
-
-
-
-
-// console.log(DEQ.first)
-// console.log(DEQ.last)
-// console.log(DEQ.length)
-
-/*
-const generations = 20
-const padding = 50
-let currentState = initialState
-for (let i = 0; i < generations; i++) {
-  currentState = '.'.repeat(padding) + currentState + '.'.repeat(padding)
-  const modifications = []
-  for (let r = 0; r < rules.length; r++) {
-    const rule = rules[r];
-
-    let ri = currentState.indexOf(rule.predicate)
-    while (ri !== -1) {
-      // console.log(rule.predicate, ri+2, rule.result)
-      modifications.push({ index: ri + 2, mod: rule.result })
-      ri = currentState.indexOf(rule.predicate, ri + 1)
-    }
-  }
-
-  modifications.forEach( m => {
-    currentState = currentState.substring(0, m.index) + m.mod + currentState.substring(m.index + 1)
-  })
-}
-
-// console.log(currentState)
-
-let sum = 0
-for (let i = 0; i < currentState.length; i++) {
-  if (currentState[i] === '#') {
-    sum += i - padding*generations
-  }
-}
-
-console.log(sum)
-*/
