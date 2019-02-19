@@ -43,16 +43,51 @@ for (let i = 0; i < logs.length; i++) {
 
     // If they are equal, add operation to the list of all possible operations
     if (equal) {
-      possibleOps.push(log.operation[0])
+      possibleOps.push(op)
     }
   }
-  if (possibleOps.length >= 3) {
-    samples.push(log)
-  }
+
+  log.possibleOps = possibleOps
+  samples.push(log)
+
 }
 
+console.log(samples.filter( l => l.possibleOps.length >= 3).length)
 
-console.log(samples.length)
+const opcodes = {}
+const possibilities = samples.map( l => [l.operation[0], l.possibleOps] )
+
+while(Object.keys(opcodes).length !== 16) {
+  const [n, ops] = possibilities.find( l => l[1].length == 1 )
+  opcodes[n] = ops[0]
+  
+  possibilities.forEach( l => {
+    if (l[1].length == 0) {
+      return
+    }
+
+    const i = l[1].findIndex( op => op == ops[0])
+    if (i !== -1) {
+      l[1].splice(i, 1)
+    }
+  })
+}
+
+console.log(opcodes)
+
+let testProgram = fs.readFileSync('input2.txt', 'utf8')
+testProgram = testProgram
+  .split('\r\n')
+  .map( x => x.split(' ').map(parseFloat))
+
+const registers = [0, 0, 0]
+
+for (let i = 0; i < testProgram.length; i++) {
+  const instruction = testProgram[i];
+  opcodes[instruction[0]](registers, instruction.slice(1))
+}
+
+console.log(registers)
 
 
 function addr(registers, input) {
